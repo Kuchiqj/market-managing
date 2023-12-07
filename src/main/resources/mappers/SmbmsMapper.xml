@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.mapper.SmbmsMapper">
+
+    <select id="selectUserByName" resultType="com.qf.pojo.SmbmsUser">
+        select * from smbms_user where userName=#{userName} and userPassword=#{userPassword}
+    </select>
+<!--    select * from smbms_user where userName like concat('%',#{userName},'%')-->
+    <resultMap id="userList" type="smbmsUser">
+        <id property="id" column="id"></id>
+        <result property="userCode" column="userCode"></result>
+        <result property="userName" column="userName"></result>
+        <result property="gender" column="gender"></result>
+        <result property="birthday" column="birthday"></result>
+        <result property="phone"  column="phone"></result>
+        <!--关联关系-->
+        <association property="smbmsRole">
+            <id property="id" column="id"></id>
+            <result property="roleName" column="roleName"></result>
+        </association>
+    </resultMap>
+
+    <select id="showList" resultMap="userList">
+        select * from smbms_user u,smbms_role r where u.userRole=r.id
+        <if test="name!=null">
+            and u.userName like concat('%',#{name},'%')
+        </if>
+    </select>
+
+    <select id="showList2" resultMap="userList">
+        select * from smbms_user where u.userName like concat('%',#{name},'%')
+    </select>
+
+    <resultMap id="userList2" type="smbmsUser">
+        <id property="id" column="id"></id>
+        <result property="userCode" column="userCode"></result>
+        <result property="userName" column="userName"></result>
+        <result property="gender" column="gender"></result>
+        <result property="birthday" column="birthday"></result>
+        <result property="phone"  column="phone"></result>
+        <!--关联关系-->
+        <association property="smbmsRole">
+            <id property="id" column="id"></id>
+            <result property="roleName" column="roleName"></result>
+        </association>
+    </resultMap>
+
+    <resultMap id="providerList2" type="SmbmsProvider">
+        <id property="id" column="id"></id>
+        <result property="proCode" column="proCode"></result>
+        <result property="proName" column="proName"></result>
+        <result property="proContact" column="proContact"></result>
+        <result property="proPhone" column="proPhone"></result>
+        <result property="proFax" column="proFax"></result>
+    </resultMap>
+
+    <select id="showList3" resultMap="providerList2">
+        select * from smbms_provider
+        <if test=" name1 != null ">
+            where proName like concat('%',#{name1},'%')
+        </if>
+    </select>
+
+    <resultMap id="providerList4" type="SmbmsProvider">
+        <id property="id" column="id"></id>
+        <result property="proCode" column="proCode"></result>
+        <result property="proName" column="proName"></result>
+        <result property="proContact" column="proContact"></result>
+        <result property="proPhone" column="proPhone"></result>
+        <result property="proFax" column="proFax"></result>
+    </resultMap>
+
+    <select id="showList4" resultMap="providerList2">
+        select * from smbms_provider where u.proName like concat('%',#{name1},'%')
+    </select>
+
+    <resultMap id="BillList" type="SmbmsBill">
+        <id property="id" column="id"></id>
+        <result property="billCode" column="billCode"></result>
+        <result property="productName" column="productName"></result>
+        <result property="productDesc" column="productDesc"></result>
+        <result property="productUnit" column="productUnit"></result>
+        <result property="productCount" column="productCount"></result>
+        <result property="totalPrice" column="totalPrice"></result>
+        <result property="isPayment" column="isPayment"></result>
+        <result property="creationDate" column="creationDate"></result>
+        <!--关联关系-->
+        <association property="smbmsProvider">
+            <id property="id" column="id"></id>
+            <result property="proName" column="proName"></result>
+        </association>
+    </resultMap>
+    <!--映射-->
+    <!--动态SQL语句，模糊查询-->
+
+    <select id="showList5" resultMap="BillList"><!--标记-->
+        select * from smbms_bill b,smbms_provider p where b.providerId=p.id
+        <if test="name != null">
+            and b.productName like concat('%',#{productName},'%')
+        </if>
+
+    </select>
+
+    <insert id="addBill" parameterType="com.qf.pojo.SmbmsBill">
+    insert into smbms_bill (billCode,productName,productUnit,productCount,totalPrice,providerId,isPayment,creationDate)
+    value (#{billCode},#{productName},#{productUnit},#{productCount},#{totalPrice},#{providerId},#{isPayment},#{creationDate});
+     </insert>
+
+    <select id="selectBillById" resultType="com.qf.pojo.SmbmsBill">
+        select * from smbms_bill where id=#{id}
+    </select>
+
+    <select id="selectBill1" resultMap="BillList">
+        select * from smbms_bill s,smbms_provider p where s.providerId=p.id
+        <if test="name!=null">
+            and s.productName like concat('%',#{name},'%')
+        </if>
+        <if test="providerId!=null">
+            and s.providerId=#{providerId}
+        </if>
+        <if test="isPayment">
+            add s.isPayment=#{isPayment}
+        </if>
+    </select>
+
+    <delete id="delectBill" parameterType="com.qf.pojo.SmbmsBill">
+        delete from smbms_bill where id=#{id}
+    </delete>
+
+    <update id="updateBill" parameterType="com.qf.pojo.SmbmsBill">
+        update smbms_bill set billCode=#{billCode},productName=#{productName},productUnit=#{productUnit},productCount=#{productCount},totalPrice=#{totalPrice},isPayment=#{isPayment},providerId=#{providerId} where providerId=#{providerId}
+    </update>
+
+    <select id="selectUserById" resultType="com.qf.pojo.SmbmsUser">
+        select * from smbms_user where id=#{id}
+    </select>
+
+    <insert id="addUser" parameterType="com.qf.pojo.SmbmsUser">
+        insert into smbms_user (userName,userPassword,gender,birthday,phone,address,userRole)values (#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole})
+    </insert>
+
+    <delete id="deleteUser" parameterType="com.qf.pojo.SmbmsUser">
+        delete from smbms_user where id=#{id}
+    </delete>
+
+    <select id="selectProviderById" resultType="com.qf.pojo.SmbmsProvider">
+            select * from smbms_provider where id=#{id}
+    </select>
+
+    <insert id="addProvider" parameterType="com.qf.pojo.SmbmsProvider">
+        insert into smbms_provider (proCode,proName,proContact,proPhone,proAddress,proFax,creationDate)values (#{proCode},#{proName},#{proContact},#{proPhone},#{proAddress},#{proFax},#{creationDate})
+    </insert>
+
+    <delete id="deleteProvider" parameterType="com.qf.pojo.SmbmsProvider">
+        delete from smbms_provider where id=#{id}
+    </delete>
+
+
+    <update id="updateUser" parameterType="com.qf.pojo.SmbmsUser">
+        update smbms_user set userCode=#{userCode},userName=#{userName},gender=#{gender},birthday=#{birthday},phone=#{phone},address=#{address},userRole=#{userRole} WHERE id=#{id}
+    </update>
+
+    <update id="updatePassword" parameterType="com.qf.pojo.SmbmsUser">
+        update smbms_user set userCode=#{userCode},userName=#{userName},userPassword=#{userPassword},gender=#{gender},birthday=#{birthday},phone=#{phone},address=#{address},userRole=#{userRole} WHERE id=#{id}
+    </update>
+
+    <update id="updateProvider" parameterType="com.qf.pojo.SmbmsProvider">
+        update smbms_provider set proCode=#{proCode},proName=#{proName},proContact=#{proContact},proPhone=#{proPhone},proAddress=#{proAddress},proFax=#{proFax} where id=#{id}
+    </update>
+</mapper>
+
+
+
